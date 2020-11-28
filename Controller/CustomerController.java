@@ -45,6 +45,11 @@ public class CustomerController {
 		
 		String url = "https://lookup.binlist.net/" + card;
 		
+		restTemplate.getForObject(url, Card.class);
+		
+	    repository.save(customer);
+		
+		/*
 		try {
 		restTemplate.getForObject(url, Card.class);
 	    repository.save(customer);
@@ -52,6 +57,7 @@ public class CustomerController {
 		{
 			System.out.print("Error: 404, Invalid card number");
 		}
+		*/
 	
     }
 		

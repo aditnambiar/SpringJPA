@@ -1,11 +1,17 @@
 package com.cred.io.controller;
 
+import java.net.http.HttpRequest;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.RestTemplate;
 
+import com.cred.io.model.Card;
 import com.cred.io.model.Customer;
 import com.cred.io.repository.CustomerRepository;
 
@@ -17,10 +23,15 @@ public class CustomerController {
 	@Autowired
 	CustomerRepository repository;
 	
+	@Autowired
+	RestTemplate restTemplate;
+	
+	
 	@RequestMapping("/customers")
 	public Iterable<Customer> getCustomers() {
 		return repository.findAll();
 	}
+	
 	
 	@RequestMapping("/customers/{customerID}")
 	public Customer getCustomerByID(@PathVariable String customerID) {
@@ -30,15 +41,27 @@ public class CustomerController {
 	
 	@RequestMapping(method = RequestMethod.POST, value="/customers")
     public void addCustomer(@RequestBody Customer customer){
-        repository.save(customer);
-    }
+		String card = Long.toString(customer.getCard());
+		
+		String url = "https://lookup.binlist.net/" + card;
+		
+		try {
+		restTemplate.getForObject(url, Card.class);
+	    repository.save(customer);
+		} catch (HttpStatusCodeException ex)
+		{
+			System.out.print("Error: 404, Invalid card number");
+		}
 	
+    }
+		
 	
 	@RequestMapping(method = RequestMethod.PUT, value="/customers/{customerID}")
     public void updateCustomer(@RequestBody Customer customer, @PathVariable String customerID){
 		long id = Long.parseLong(customerID);
 		Customer currentCustomer = repository.findById(id);
 		
+		currentCustomer.setCard(customer.getCard());
 		currentCustomer.setFirstName(customer.getFirstName());
 		currentCustomer.setLastName(customer.getLastName());
 		currentCustomer.setDateOfBirth(customer.getDateOfBirth());

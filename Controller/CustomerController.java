@@ -48,17 +48,7 @@ public class CustomerController {
 		restTemplate.getForObject(url, Card.class);
 		
 	    repository.save(customer);
-		
-		/*
-		try {
-		restTemplate.getForObject(url, Card.class);
-	    repository.save(customer);
-		} catch (HttpStatusCodeException ex)
-		{
-			System.out.print("Error: 404, Invalid card number");
-		}
-		*/
-	
+
     }
 		
 	
